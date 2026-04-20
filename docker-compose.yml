@@ -9,7 +9,7 @@ services:
       NUT_PORT: "3493"
       NUT_UPS_NAME: "ups"
       API_PORT: "8000"
-      REFRESH_INTERVAL_MS: "60000"
+      REFRESH_INTERVAL_SECONDS: "60"
       # Uncomment if your Synology NUT server requires credentials.
       # NUT_USERNAME: "monuser"
       # NUT_PASSWORD: "your-password"

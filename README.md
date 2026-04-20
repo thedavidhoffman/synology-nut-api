@@ -8,7 +8,7 @@ I run [Homarr](https://homarr.dev/) for my homelab's dashboard (for my Synology 
 
 ## Disclaimer
 
-I created this entire project using Codex. I did not write any code myself. I am an experienced software engineer and I did give this code a look over, so I'm not just blindly vibe coding.
+I created this project using Codex. I then made several passes (using AI) to clean up the code and bring it more in line with my specs.
 
 ## What it exposes
 
@@ -86,7 +86,9 @@ docker run -d ^
 NOTE: update the external port to your needs. If you do change the external port, make sure you change the 8000 port value in the rest of this documentation accordingly.
 
 ## Pack the docker image as a tarball
+```
 docker save -o synology-nut-api.tar synology-nut-api:latest
+```
 
 You can then import the tarball in Synology's Container Manager via Image... Action... Import.
 

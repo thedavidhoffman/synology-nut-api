@@ -39,7 +39,7 @@ function statusTone(status) {
   return "warning";
 }
 
-export function renderUpsWidget(refreshIntervalMs) {
+export function renderUpsWidget(refreshIntervalSeconds) {
   return `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -362,7 +362,7 @@ export function renderUpsWidget(refreshIntervalMs) {
             <div class="meta-chip">UPS Name: --</div>
             <div class="meta-chip">Manufacturer: --</div>
             <div class="meta-chip">Model: --</div>
-            <div class="meta-chip live" id="ups-refresh">Refreshes every ${escapeHtml(Math.round(refreshIntervalMs / 1000))} seconds</div>
+            <div class="meta-chip live" id="ups-refresh">Refreshes every ${escapeHtml(refreshIntervalSeconds)} seconds</div>
           </div>
         </div>
         <aside class="details">
@@ -378,7 +378,7 @@ export function renderUpsWidget(refreshIntervalMs) {
       </section>
     </main>
     <script>
-      const REFRESH_INTERVAL_MS = ${JSON.stringify(refreshIntervalMs)};
+      const REFRESH_INTERVAL_SECONDS = ${JSON.stringify(refreshIntervalSeconds)};
 
       function escapeHtml(value) {
         return String(value)
@@ -465,7 +465,7 @@ export function renderUpsWidget(refreshIntervalMs) {
           <div class="meta-chip">UPS Name: \${escapeHtml(payload.ups_name || "--")}</div>
           <div class="meta-chip">Manufacturer: \${escapeHtml(manufacturer || "Unavailable")}</div>
           <div class="meta-chip">Model: \${escapeHtml(model || "Unavailable")}</div>
-          <div class="meta-chip live" id="ups-refresh">Updated \${new Date().toLocaleTimeString()} · Every \${Math.round(REFRESH_INTERVAL_MS / 1000)}s</div>
+          <div class="meta-chip live" id="ups-refresh">Updated \${new Date().toLocaleTimeString()} | Every \${REFRESH_INTERVAL_SECONDS}s</div>
         \`;
         document.getElementById("ups-details").innerHTML = renderDetails(data);
       }
@@ -498,7 +498,7 @@ export function renderUpsWidget(refreshIntervalMs) {
       }
 
       refreshWidget();
-      setInterval(refreshWidget, REFRESH_INTERVAL_MS);
+      setInterval(refreshWidget, REFRESH_INTERVAL_SECONDS * 1000);
     </script>
   </body>
 </html>`;

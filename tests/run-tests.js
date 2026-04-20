@@ -28,12 +28,12 @@ async function main() {
   }
 
   {
-    const html = renderUpsWidget(45000);
+    const html = renderUpsWidget(45);
 
     assert.match(html, /Synology NUT Monitor/);
     assert.match(html, /fetch\("\/api\/ups"/);
-    assert.match(html, /setInterval\(refreshWidget,\s*REFRESH_INTERVAL_MS\)/);
-    assert.match(html, /const REFRESH_INTERVAL_MS = 45000/);
+    assert.match(html, /setInterval\(refreshWidget,\s*REFRESH_INTERVAL_SECONDS \* 1000\)/);
+    assert.match(html, /const REFRESH_INTERVAL_SECONDS = 45/);
     assert.match(html, /Refreshes every 45 seconds/);
     assert.match(html, /prefers-color-scheme: dark/);
   }

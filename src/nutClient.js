@@ -5,23 +5,32 @@ export class NutError extends Error {}
 export class NutProtocolError extends NutError {}
 
 export class NutClient {
+
+  //-----------------------------------------------------------------------------
+  // constructor
+  //-----------------------------------------------------------------------------
   constructor({
     host,
     port,
     upsName,
-    timeoutMs = 5000,
+    timeoutSeconds,
     username = null,
     password = null
   }) {
+
     this.host = host;
     this.port = port;
     this.upsName = upsName;
-    this.timeoutMs = timeoutMs;
+    this.timeoutSeconds = timeoutSeconds;
     this.username = username;
     this.password = password;
   }
 
+  //-----------------------------------------------------------------------------
+  // fetchUpsVariables
+  //-----------------------------------------------------------------------------
   async fetchUpsVariables() {
+
     if ((this.username && !this.password) || (!this.username && this.password)) {
       throw new NutError("Both NUT_USERNAME and NUT_PASSWORD must be set together.");
     }
@@ -48,13 +57,21 @@ export class NutClient {
     }
   }
 
+  //-----------------------------------------------------------------------------
+  // #expectOk
+  //-----------------------------------------------------------------------------
   #expectOk(response, label) {
+
     if (response !== "OK") {
       throw new NutProtocolError(`Authentication failed during ${label} step: ${response}`);
     }
   }
 
+  //-----------------------------------------------------------------------------
+  // #parseVarLines
+  //-----------------------------------------------------------------------------
   #parseVarLines(lines) {
+
     const expectedStart = `BEGIN LIST VAR ${this.upsName}`;
     if (lines[0] !== expectedStart) {
       throw new NutProtocolError(
@@ -72,14 +89,18 @@ export class NutClient {
     return values;
   }
 
+  //-----------------------------------------------------------------------------
+  // #connect
+  //-----------------------------------------------------------------------------
   async #connect() {
+
     const socket = net.createConnection({
       host: this.host,
       port: this.port
     });
 
     socket.setEncoding("utf8");
-    socket.setTimeout(this.timeoutMs);
+    socket.setTimeout(this.timeoutSeconds * 1000);
 
     await new Promise((resolve, reject) => {
       const onConnect = () => {
@@ -136,7 +157,11 @@ export class NutClient {
       }
     });
 
+    //-----------------------------------------------------------------------------
+    // drainBuffer
+    //-----------------------------------------------------------------------------
     function drainBuffer() {
+
       while (waiters.length > 0) {
         const next = waiters[0];
         const lines = extractCompleteResponse();
@@ -149,7 +174,11 @@ export class NutClient {
       }
     }
 
+    //-----------------------------------------------------------------------------
+    // extractCompleteResponse
+    //-----------------------------------------------------------------------------
     function extractCompleteResponse() {
+
       const lineBreaks = buffer.split("\n");
       if (!buffer.includes("\n")) {
         return null;
@@ -179,10 +208,19 @@ export class NutClient {
     }
 
     return {
+      
+      //-----------------------------------------------------------------------------
+      // close
+      //-----------------------------------------------------------------------------
       close() {
+
         socket.end();
       },
+      //-----------------------------------------------------------------------------
+      // sendCommand
+      //-----------------------------------------------------------------------------
       sendCommand(command, options = {}) {
+
         return new Promise((resolve, reject) => {
           waiters.push({
             resolve,
@@ -198,7 +236,11 @@ export class NutClient {
   }
 }
 
+//-----------------------------------------------------------------------------
+// parseVarLine
+//-----------------------------------------------------------------------------
 export function parseVarLine(line, expectedUpsName) {
+
   const match = line.match(/^VAR\s+(\S+)\s+(\S+)\s+"((?:[^"\\]|\\.)*)"$/);
   if (!match) {
     throw new NutProtocolError(`Unexpected NUT response line: ${line}`);
