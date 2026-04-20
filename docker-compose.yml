@@ -1,0 +1,16 @@
+services:
+  synology-nut-api:
+    build: .
+    container_name: synology-nut-api
+    ports:
+      - "8000:8000"
+    environment:
+      NUT_HOST: "192.168.1.10"
+      NUT_PORT: "3493"
+      NUT_UPS_NAME: "ups"
+      API_PORT: "8000"
+      REFRESH_INTERVAL_MS: "60000"
+      # Uncomment if your Synology NUT server requires credentials.
+      # NUT_USERNAME: "monuser"
+      # NUT_PASSWORD: "your-password"
+    restart: unless-stopped

@@ -1,0 +1,13 @@
+{
+  "name": "synology-nut-api",
+  "version": "1.0.0",
+  "description": "Docker-ready Node.js API for exposing UPS data from a Synology NUT server.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node tests/run-tests.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
