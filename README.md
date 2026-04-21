@@ -56,6 +56,9 @@ The container uses environment variables:
 - `NUT_TIMEOUT_SECONDS`: timeout for NUT requests, default `5`
 - `API_HOST`: API bind host, default `0.0.0.0`
 - `API_PORT`: API bind port, default `8000`
+- `RATE_LIMIT_HEALTH`: requests per minute allowed for `/health`, default `60`
+- `RATE_LIMIT_API`: requests per minute allowed for `/api/ups` and `/api/ups/{variable}`, default `12`
+- `RATE_LIMIT_WIDGET`: requests per minute allowed for `/widget/ups`, default `30`
 
 ## 🐳 Run with Docker Compose
 
@@ -131,5 +134,5 @@ npm start:dev (runs using a mock NutClient, enables local testing without having
 
 ## 📝 Notes
 
-- This service speaks the NUT text protocol directly, so there is no extra runtime dependency beyond Node.js itself. ✨
-- If Synology denies access, confirm the Docker host or container network is allowed by the NAS firewall and by the Network UPS Server allowlist. 🛡️
+- ✨ This service speaks the NUT text protocol directly, so there is no extra runtime dependency beyond Node.js itself.
+- 🛡️ If Synology denies access, confirm the Docker host or container network is allowed by the NAS firewall and by the Network UPS Server allowlist.

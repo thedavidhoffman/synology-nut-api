@@ -13,19 +13,16 @@ function readEnv(name, fallback) {
 function readEnvAsNum(name, fallback) {
 
   const value = process.env[name];
-  
-  if (value) {
-    value = value.trim();
-  }
+  const trimmedValue = value ? value.trim() : value;
 
-  if (!value) {
+  if (!trimmedValue) {
     if (typeof fallback !== "number" || Number.isNaN(fallback)) {
       throw new Error(`Fallback for ${name} must be a valid number.`);
     }
     return fallback;
   }
 
-  const parsed = Number(value);
+  const parsed = Number(trimmedValue);
   
   if (Number.isNaN(parsed)) {
     throw new Error(`Environment variable ${name} must be a number.`);
@@ -48,6 +45,9 @@ export function getSettings() {
   const API_PORT = readEnvAsNum("API_PORT", 8000);
   const NUT_TIMEOUT_SECONDS = readEnvAsNum("NUT_TIMEOUT_SECONDS", 5);
   const REFRESH_INTERVAL_SECONDS = readEnvAsNum("REFRESH_INTERVAL_SECONDS", 60);
+  const RATE_LIMIT_HEALTH = readEnvAsNum("RATE_LIMIT_HEALTH", 60);
+  const RATE_LIMIT_API = readEnvAsNum("RATE_LIMIT_API", 12);
+  const RATE_LIMIT_WIDGET = readEnvAsNum("RATE_LIMIT_WIDGET", 30);
 
   return {
     host: NUT_HOST,
@@ -57,6 +57,9 @@ export function getSettings() {
     password: NUT_PASSWORD,
     apiHost: API_HOST,
     apiPort: API_PORT,
+    rateLimitHealth: RATE_LIMIT_HEALTH,
+    rateLimitApi: RATE_LIMIT_API,
+    rateLimitWidget: RATE_LIMIT_WIDGET,
     timeoutSeconds: NUT_TIMEOUT_SECONDS,
     refreshIntervalSeconds: REFRESH_INTERVAL_SECONDS
   };

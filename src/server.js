@@ -6,6 +6,12 @@ import { renderUpsWidget } from "./widget.js";
 
 const settings = getSettings();
 const useDevClient = process.argv.includes("dev");
+const rateLimitStore = new Map();
+const RATE_LIMITS = {
+  health: { windowMs: 60000, maxRequests: settings.rateLimitHealth },
+  api: { windowMs: 60000, maxRequests: settings.rateLimitApi },
+  widget: { windowMs: 60000, maxRequests: settings.rateLimitWidget }
+};
 
 //-----------------------------------------------------------------------------
 // sendJson
@@ -30,6 +36,20 @@ function sendHtml(response, statusCode, html) {
     "Content-Length": Buffer.byteLength(html)
   });
   response.end(html);
+}
+
+//-----------------------------------------------------------------------------
+// getClientIp
+//-----------------------------------------------------------------------------
+function getClientIp(request) {
+
+  const forwardedFor = request.headers["x-forwarded-for"];
+
+  if (typeof forwardedFor === "string" && forwardedFor.trim()) {
+    return forwardedFor.split(",")[0].trim();
+  }
+
+  return request.socket.remoteAddress || "unknown";
 }
 
 //-----------------------------------------------------------------------------
@@ -69,6 +89,67 @@ function formatHealthTimestamp() {
 }
 
 //-----------------------------------------------------------------------------
+// getRateLimitConfig
+//-----------------------------------------------------------------------------
+function getRateLimitConfig(pathname) {
+
+  if (pathname === "/health") {
+    return { key: "health", ...RATE_LIMITS.health };
+  }
+
+  if (pathname === "/api/ups" || pathname.startsWith("/api/ups/")) {
+    return { key: "api", ...RATE_LIMITS.api };
+  }
+
+  if (pathname === "/widget/ups") {
+    return { key: "widget", ...RATE_LIMITS.widget };
+  }
+
+  return null;
+}
+
+//-----------------------------------------------------------------------------
+// applyRateLimit
+//-----------------------------------------------------------------------------
+function applyRateLimit(request, response, pathname) {
+
+  const config = getRateLimitConfig(pathname);
+  if (!config) {
+    return false;
+  }
+
+  const now = Date.now();
+  const clientIp = getClientIp(request);
+  const bucketKey = `${config.key}:${clientIp}`;
+  const existingBucket = rateLimitStore.get(bucketKey);
+  const bucket =
+    existingBucket && existingBucket.resetAt > now
+      ? existingBucket
+      : { count: 0, resetAt: now + config.windowMs };
+
+  bucket.count += 1;
+  rateLimitStore.set(bucketKey, bucket);
+
+  const retryAfterSeconds = Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
+  const remainingRequests = Math.max(0, config.maxRequests - bucket.count);
+
+  response.setHeader("X-RateLimit-Limit", String(config.maxRequests));
+  response.setHeader("X-RateLimit-Remaining", String(remainingRequests));
+  response.setHeader("X-RateLimit-Reset", String(Math.ceil(bucket.resetAt / 1000)));
+
+  if (bucket.count <= config.maxRequests) {
+    return false;
+  }
+
+  response.setHeader("Retry-After", String(retryAfterSeconds));
+  sendJson(response, 429, {
+    error: "Rate limit exceeded.",
+    retry_after_seconds: retryAfterSeconds
+  });
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // http server
 //-----------------------------------------------------------------------------
 const server = http.createServer(async (request, response) => {
@@ -79,6 +160,10 @@ const server = http.createServer(async (request, response) => {
   }
 
   const url = new URL(request.url, `http://${request.headers.host || "localhost"}`);
+
+  if (applyRateLimit(request, response, url.pathname)) {
+    return;
+  }
 
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // health
