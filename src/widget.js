@@ -1,4 +1,8 @@
+//-----------------------------------------------------------------------------
+// escapeHtml
+//-----------------------------------------------------------------------------
 function escapeHtml(value) {
+
   return String(value)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -7,39 +11,11 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
-function pickValue(data, ...keys) {
-  for (const key of keys) {
-    if (data[key]) {
-      return data[key];
-    }
-  }
-  return null;
-}
-
-function formatLabel(key) {
-  return key
-    .split(".")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function statusTone(status) {
-  if (!status) {
-    return "unknown";
-  }
-
-  if (status.includes("OL")) {
-    return "online";
-  }
-
-  if (status.includes("OB")) {
-    return "battery";
-  }
-
-  return "warning";
-}
-
+//-----------------------------------------------------------------------------
+// renderUpsWidget
+//-----------------------------------------------------------------------------
 export function renderUpsWidget(refreshIntervalSeconds) {
+
   return `<!DOCTYPE html>
 <html lang="en">
   <head>
