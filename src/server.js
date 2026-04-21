@@ -1,9 +1,11 @@
 import http from "node:http";
 import { getSettings } from "./config.js";
+import { NutClientMock } from "./NutClientMock.js";
 import { NutClient, NutError } from "./nutClient.js";
 import { renderUpsWidget } from "./widget.js";
 
 const settings = getSettings();
+const useDevClient = process.argv.includes("dev");
 
 //-----------------------------------------------------------------------------
 // sendJson
@@ -34,6 +36,12 @@ function sendHtml(response, statusCode, html) {
 // buildNutClient
 //-----------------------------------------------------------------------------
 function buildNutClient() {
+
+  if (useDevClient) {
+    return new NutClientMock({
+      upsName: settings.upsName
+    });
+  }
 
   return new NutClient({
     host: settings.host,

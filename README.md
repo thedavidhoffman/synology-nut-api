@@ -123,9 +123,10 @@ Notes:
 
 ## 💻 Local development
 
-```powershell
+```
 npm test
 npm start
+npm start:dev (runs using a mock NutClient, enables local testing without having to deploy as a docker container on a system with a real NUT server)
 ```
 
 ## 📝 Notes
