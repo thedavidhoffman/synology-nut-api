@@ -14,7 +14,9 @@ function escapeHtml(value) {
 //-----------------------------------------------------------------------------
 // renderUpsWidget
 //-----------------------------------------------------------------------------
-export function renderUpsWidget(refreshIntervalSeconds) {
+export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
+
+  const normalizedWidgetSize = widgetSize === "compact" ? "compact" : "full";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -74,12 +76,21 @@ export function renderUpsWidget(refreshIntervalSeconds) {
         box-shadow: 0 28px 80px rgba(60, 35, 10, 0.18);
       }
 
+      .widget.compact {
+        width: min(420px, 100%);
+        border-radius: 22px;
+      }
+
       .hero {
         position: relative;
-        padding: 28px 28px 20px;
+        padding: 38px 28px 20px;
         background:
           linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.18)),
           linear-gradient(120deg, #efe0c4, #f9f5ee 56%, #e7d4b2);
+      }
+
+      .widget.compact .hero {
+        padding: 36px 20px 14px;
       }
 
       @media (prefers-color-scheme: dark) {
@@ -87,23 +98,6 @@ export function renderUpsWidget(refreshIntervalSeconds) {
           background:
             linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
             linear-gradient(120deg, #1a2940, #102132 58%, #0c1521);
-        }
-      }
-
-      .hero::after {
-        content: "";
-        position: absolute;
-        inset: auto -80px -80px auto;
-        width: 220px;
-        height: 220px;
-        border-radius: 50%;
-        background: rgba(181, 93, 47, 0.08);
-        filter: blur(2px);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .hero::after {
-          background: rgba(242, 166, 90, 0.1);
         }
       }
 
@@ -125,7 +119,7 @@ export function renderUpsWidget(refreshIntervalSeconds) {
 
       h1 {
         margin: 0;
-        font-size: clamp(28px, 4vw, 42px);
+        font-size: 24px;
         line-height: 1;
       }
 
@@ -135,9 +129,19 @@ export function renderUpsWidget(refreshIntervalSeconds) {
         font-size: 15px;
       }
 
+      .widget.compact .subhead {
+        font-size: 13px;
+      }
+
       .status-pill {
+        position: absolute;
+        top: 14px;
+        right: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         border-radius: 999px;
-        padding: 10px 14px;
+        padding: 8px 12px;
         font-size: 13px;
         font-weight: 700;
         letter-spacing: 0.04em;
@@ -146,8 +150,8 @@ export function renderUpsWidget(refreshIntervalSeconds) {
         color: var(--accent);
       }
 
-      .status-pill.online { background: rgba(60, 122, 71, 0.12); color: var(--online); }
-      .status-pill.battery { background: rgba(192, 86, 33, 0.12); color: var(--battery); }
+      .status-pill.online { background: rgba(60, 122, 71, 0.16); color: var(--online); }
+      .status-pill.battery { background: rgba(138, 59, 46, 0.16); color: var(--warning); }
       .status-pill.warning { background: rgba(138, 59, 46, 0.12); color: var(--warning); }
       .status-pill.unknown { background: rgba(108, 90, 67, 0.12); color: var(--muted); }
 
@@ -158,10 +162,19 @@ export function renderUpsWidget(refreshIntervalSeconds) {
         padding: 24px 28px 28px;
       }
 
+      .widget.compact .content {
+        display: block;
+        padding: 18px 20px 20px;
+      }
+
       .stats {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
+      }
+
+      .widget.compact .stats {
+        gap: 10px;
       }
 
       .stat-card, .details {
@@ -180,6 +193,10 @@ export function renderUpsWidget(refreshIntervalSeconds) {
         padding: 18px;
       }
 
+      .widget.compact .stat-card {
+        padding: 14px;
+      }
+
       .stat-label {
         font-size: 12px;
         text-transform: uppercase;
@@ -193,11 +210,19 @@ export function renderUpsWidget(refreshIntervalSeconds) {
         font-weight: 700;
       }
 
+      .widget.compact .stat-value {
+        font-size: 21px;
+      }
+
       .meta {
         margin-top: 18px;
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+      }
+
+      .widget.compact .meta {
+        margin-top: 12px;
       }
 
       .meta-chip {
@@ -222,6 +247,10 @@ export function renderUpsWidget(refreshIntervalSeconds) {
 
       .details {
         padding: 18px;
+      }
+
+      .widget.compact .details {
+        display: none;
       }
 
       .details h2 {
@@ -303,7 +332,7 @@ export function renderUpsWidget(refreshIntervalSeconds) {
     </style>
   </head>
   <body>
-    <main class="widget">
+    <main class="widget ${escapeHtml(normalizedWidgetSize)}">
       <section class="hero">
         <div class="eyebrow">Synology NUT Monitor</div>
         <div class="headline">
@@ -388,6 +417,13 @@ export function renderUpsWidget(refreshIntervalSeconds) {
         return "warning";
       }
 
+      function statusLabel(status) {
+        if (!status) return "Unknown";
+        if (status.includes("OL")) return "🟢 ONLINE";
+        if (status.includes("OB")) return "🔴 BATTERY";
+        return status;
+      }
+
       function renderStats(data) {
         const stats = [
           { label: "Battery", value: pickValue(data, ["battery.charge"]) ? pickValue(data, ["battery.charge"]) + "%" : "Unavailable" },
@@ -433,7 +469,7 @@ export function renderUpsWidget(refreshIntervalSeconds) {
         document.getElementById("ups-subhead").textContent = subheadParts.join(" | ");
 
         const statusEl = document.getElementById("ups-status");
-        statusEl.textContent = status || "Unknown";
+        statusEl.textContent = statusLabel(status);
         statusEl.className = "status-pill " + statusTone(status);
 
         document.getElementById("ups-stats").innerHTML = renderStats(data);

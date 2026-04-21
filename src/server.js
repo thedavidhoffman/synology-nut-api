@@ -231,7 +231,8 @@ const server = http.createServer(async (request, response) => {
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if (url.pathname === "/widget/ups") {
 
-    sendHtml(response, 200, renderUpsWidget(settings.refreshIntervalSeconds));
+    const widgetSize = url.searchParams.get("size") === "compact" ? "compact" : "full";
+    sendHtml(response, 200, renderUpsWidget(settings.refreshIntervalSeconds, widgetSize));
     return;
   }
 

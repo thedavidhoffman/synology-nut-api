@@ -29,8 +29,11 @@ async function main() {
 
   {
     const html = renderUpsWidget(45);
+    const compactHtml = renderUpsWidget(45, "compact");
 
     assert.match(html, /Synology NUT Monitor/);
+    assert.match(html, /class="widget full"/);
+    assert.match(compactHtml, /class="widget compact"/);
     assert.match(html, /fetch\("\/api\/ups"/);
     assert.match(html, /setInterval\(refreshWidget,\s*REFRESH_INTERVAL_SECONDS \* 1000\)/);
     assert.match(html, /const REFRESH_INTERVAL_SECONDS = 45/);
