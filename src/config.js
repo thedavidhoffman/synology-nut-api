@@ -1,19 +1,23 @@
 //-----------------------------------------------------------------------------
-// readOptional
+// readEnv
 //-----------------------------------------------------------------------------
-function readOptional(name) {
+function readEnv(name, fallback) {
 
   const value = process.env[name];
-  return value && value.trim() ? value : null;
+  return value && value.trim() ? value.trim() : fallback;
 }
 
 //-----------------------------------------------------------------------------
-// readNumber
+// readEnvAsNum
 //-----------------------------------------------------------------------------
-function readNumber(name, fallback) {
+function readEnvAsNum(name, fallback) {
 
   const value = process.env[name];
   
+  if (value) {
+    value = value.trim();
+  }
+
   if (!value) {
     if (typeof fallback !== "number" || Number.isNaN(fallback)) {
       throw new Error(`Fallback for ${name} must be a valid number.`);
@@ -22,9 +26,11 @@ function readNumber(name, fallback) {
   }
 
   const parsed = Number(value);
+  
   if (Number.isNaN(parsed)) {
     throw new Error(`Environment variable ${name} must be a number.`);
   }
+
   return parsed;
 }
 
@@ -33,15 +39,15 @@ function readNumber(name, fallback) {
 //-----------------------------------------------------------------------------
 export function getSettings() {
 
-  const NUT_HOST = process.env.NUT_HOST || "synology.local";
-  const NUT_PORT = readNumber("NUT_PORT", 3493);
-  const NUT_UPS_NAME = process.env.NUT_UPS_NAME || "ups";
-  const NUT_USERNAME = readOptional("NUT_USERNAME");
-  const NUT_PASSWORD = readOptional("NUT_PASSWORD");
-  const API_HOST = process.env.API_HOST || "0.0.0.0";
-  const API_PORT = readNumber("API_PORT", 8000);
-  const NUT_TIMEOUT_SECONDS = readNumber("NUT_TIMEOUT_SECONDS", 5);
-  const REFRESH_INTERVAL_SECONDS = readNumber("REFRESH_INTERVAL_SECONDS", 60);
+  const NUT_HOST = readEnv("NUT_HOST", "synology.local");
+  const NUT_PORT = readEnvAsNum("NUT_PORT", 3493);
+  const NUT_UPS_NAME = readEnv("NUT_UPS_NAME", "ups");
+  const NUT_USERNAME = readEnv("NUT_USERNAME", null);
+  const NUT_PASSWORD = readEnv("NUT_PASSWORD", null);
+  const API_HOST = readEnv("API_HOST", "0.0.0.0");
+  const API_PORT = readEnvAsNum("API_PORT", 8000);
+  const NUT_TIMEOUT_SECONDS = readEnvAsNum("NUT_TIMEOUT_SECONDS", 5);
+  const REFRESH_INTERVAL_SECONDS = readEnvAsNum("REFRESH_INTERVAL_SECONDS", 60);
 
   return {
     host: NUT_HOST,

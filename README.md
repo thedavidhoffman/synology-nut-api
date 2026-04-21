@@ -2,15 +2,15 @@
 
 This project runs a small Node.js HTTP API in Docker and reads UPS telemetry from Synology's built-in NUT (`upsd`) server.
 
-## Why?
+## 🔋 Why?
 
 I run [Homarr](https://homarr.dev/) for my homelab's dashboard (for my Synology servers). I have a UPS connected to one of my Synology servers. This project connects to the Synology server's built-in [NUT](https://networkupstools.org/) server that returns an html widget that can then be used on a Homarr board. It also exposes json data via an api.
 
-## Disclaimer
+## 🤖 Disclaimer
 
 I created this project using Codex. I then made several passes (using AI) to clean up the code and bring it more in line with my specs.
 
-## What it exposes
+## 🚀 What it exposes
 
 - `GET /health` returns a basic health check
 - `GET /api/ups` returns all UPS variables reported by NUT
@@ -36,7 +36,7 @@ Example response from `GET /api/ups`:
 }
 ```
 
-## Synology setup
+## 🧰 Synology setup
 
 1. In DSM, enable the Synology UPS service and the network UPS server. (Control Panel... Power & Hardware... UPS)
 2. Add the Docker host as an allowed network UPS client if Synology asks for permitted IPs.
@@ -44,7 +44,7 @@ Example response from `GET /api/ups`:
 
 The default NUT port is `3493`. Many Synology setups expose the UPS as `ups`, but some use another name. If you are unsure, start with `ups`.
 
-## Configuration
+## ⚙️ Configuration
 
 The container uses environment variables:
 
@@ -57,7 +57,7 @@ The container uses environment variables:
 - `API_HOST`: API bind host, default `0.0.0.0`
 - `API_PORT`: API bind port, default `8000`
 
-## Run with Docker Compose
+## 🐳 Run with Docker Compose
 
 Update [`docker-compose.yml`] with your Synology NAS address, then run:
 
@@ -71,7 +71,7 @@ The API will be available at:
 - [http://localhost:8000/api/ups](http://localhost:8000/api/ups)
 - [http://localhost:8000/widget/ups](http://localhost:8000/widget/ups)
 
-## Run with plain Docker
+## 🐳 Run with plain Docker
 
 ```powershell
 docker build -t synology-nut-api .
@@ -83,16 +83,16 @@ docker run -d ^
   synology-nut-api
 ```
 
-NOTE: update the external port to your needs. If you do change the external port, make sure you change the 8000 port value in the rest of this documentation accordingly.
+NOTE: update the external port to your needs. If you do change the external port, make sure you change the 8000 port value in the rest of this documentation accordingly. 🔌
 
-## Pack the docker image as a tarball
+## 📦 Pack the docker image as a tarball
 ```
 docker save -o synology-nut-api.tar synology-nut-api:latest
 ```
 
 You can then import the tarball in Synology's Container Manager via Image... Action... Import.
 
-## Synology Container Manager
+## 👨‍💼 Synology Container Manager
 
 If you want to run the container directly on the Synology NAS:
 
@@ -102,7 +102,7 @@ If you want to run the container directly on the Synology NAS:
 4. Publish container port `8000`.
 5. Start the container and test `/health` or `/api/ups` or `/widget/ups`.
 
-## Add the widget to Homarr
+## 🏠 Add the widget to Homarr
 
 You can add the HTML widget endpoint to a Homarr board by embedding [`/widget/ups`](http://localhost:8000/widget/ups).
 
@@ -117,18 +117,18 @@ You can add the HTML widget endpoint to a Homarr board by embedding [`/widget/up
 
 Notes:
 
-- If Homarr is running in Docker on the same NAS, `localhost` usually will not work unless both containers share the same network namespace. Use the NAS IP address or the container/service name on a shared Docker network.
-- If the widget does not load inside Homarr, first open the widget URL directly in your browser to confirm the API container is reachable.
-- If your Homarr setup blocks iframe-style embeds for some widgets, use the widget type intended for external websites/pages rather than a simple link tile.
+- If Homarr is running in Docker on the same NAS, `localhost` usually will not work unless both containers share the same network namespace. Use the NAS IP address or the container/service name on a shared Docker network. 🌐
+- If the widget does not load inside Homarr, first open the widget URL directly in your browser to confirm the API container is reachable. 🧪
+- If your Homarr setup blocks iframe-style embeds for some widgets, use the widget type intended for external websites/pages rather than a simple link tile. 🪟
 
-## Local development
+## 💻 Local development
 
 ```powershell
 npm test
 npm start
 ```
 
-## Notes
+## 📝 Notes
 
-- This service speaks the NUT text protocol directly, so there is no extra runtime dependency beyond Node.js itself.
-- If Synology denies access, confirm the Docker host or container network is allowed by the NAS firewall and by the Network UPS Server allowlist.
+- This service speaks the NUT text protocol directly, so there is no extra runtime dependency beyond Node.js itself. ✨
+- If Synology denies access, confirm the Docker host or container network is allowed by the NAS firewall and by the Network UPS Server allowlist. 🛡️
