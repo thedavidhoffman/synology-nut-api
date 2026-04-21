@@ -1,7 +1,8 @@
 import http from "node:http";
 import { getSettings } from "./config.js";
 import { NutClientMock } from "./NutClientMock.js";
-import { NutClient, NutError } from "./nutClient.js";
+import { NutClient, NutError } from "./NutClient.js";
+import { logError, logInfo } from "./logger.js";
 import { renderUpsWidget } from "./widget.js";
 
 const settings = getSettings();
@@ -12,6 +13,14 @@ const RATE_LIMITS = {
   api: { windowMs: 60000, maxRequests: settings.rateLimitApi },
   widget: { windowMs: 60000, maxRequests: settings.rateLimitWidget }
 };
+
+process.on("uncaughtException", (error) => {
+  logError("runtime.uncaughtException", error);
+});
+
+process.on("unhandledRejection", (reason) => {
+  logError("runtime.unhandledRejection", reason);
+});
 
 //-----------------------------------------------------------------------------
 // sendJson
@@ -138,11 +147,19 @@ function applyRateLimit(request, response, pathname) {
     return false;
   }
 
+  logInfo("request.rateLimited", {
+    clientIp,
+    pathname,
+    limit: config.maxRequests,
+    retryAfterSeconds
+  });
+
   response.setHeader("Retry-After", String(retryAfterSeconds));
   sendJson(response, 429, {
     error: "Rate limit exceeded.",
     retry_after_seconds: retryAfterSeconds
   });
+  
   return true;
 }
 
@@ -157,6 +174,14 @@ const server = http.createServer(async (request, response) => {
   }
 
   const url = new URL(request.url, `http://${request.headers.host || "localhost"}`);
+  const clientIp = getClientIp(request);
+
+  logInfo("request.received", {
+    clientIp,
+    method: request.method,
+    path: url.pathname,
+    query: url.search
+  });
 
   if (applyRateLimit(request, response, url.pathname)) {
     return;
@@ -189,6 +214,10 @@ const server = http.createServer(async (request, response) => {
       });
     } catch (error) {
       const message = error instanceof NutError ? error.message : "Unexpected error";
+      logError("api.ups.error", error, {
+        clientIp,
+        path: url.pathname
+      });
       sendJson(response, 502, { error: message });
     }
     return;
@@ -221,6 +250,11 @@ const server = http.createServer(async (request, response) => {
       });
     } catch (error) {
       const message = error instanceof NutError ? error.message : "Unexpected error";
+      logError("api.ups.variable.error", error, {
+        clientIp,
+        path: url.pathname,
+        variable
+      });
       sendJson(response, 502, { error: message });
     }
     return;
@@ -241,8 +275,13 @@ const server = http.createServer(async (request, response) => {
 
 server.listen(settings.apiPort, settings.apiHost, () => {
 
-  console.log(
-    `Starting Synology NUT API on ${settings.apiHost}:${settings.apiPort} ` +
-      `for UPS '${settings.upsName}' via ${settings.host}:${settings.port}`
-  );
+  logInfo("Starting Synology NUT API", {
+    apiHost: settings.apiHost,
+    apiPort: settings.apiPort,
+    nutHost: settings.host,
+    nutPort: settings.port,
+    upsName: settings.upsName,
+    devMode: useDevClient
+  });
+
 });

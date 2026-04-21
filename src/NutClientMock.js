@@ -1,4 +1,7 @@
+import { logInfo } from "./logger.js";
+
 export class NutClientMock {
+  
   //-----------------------------------------------------------------------------
   // constructor
   //-----------------------------------------------------------------------------
@@ -11,6 +14,11 @@ export class NutClientMock {
   // fetchUpsVariables
   //-----------------------------------------------------------------------------
   async fetchUpsVariables() {
+
+    logInfo("nut.mock.fetch", {
+      upsName: this.upsName,
+      variableCount: 14
+    });
 
     return {
       "battery.charge": "98",

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { NutClient, NutError, NutProtocolError, parseVarLine } from "../src/nutClient.js";
+import { NutClient, NutError, NutProtocolError, parseVarLine } from "../src/NutClient.js";
 import { renderUpsWidget } from "../src/widget.js";
 
 async function main() {

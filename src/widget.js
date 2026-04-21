@@ -162,6 +162,12 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
         padding: 24px 28px 28px;
       }
 
+      .summary-panel {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+      }
+
       .widget.compact .content {
         display: block;
         padding: 18px 20px 20px;
@@ -214,35 +220,16 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
         font-size: 21px;
       }
 
-      .meta {
-        margin-top: 18px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-
-      .widget.compact .meta {
-        margin-top: 12px;
-      }
-
-      .meta-chip {
-        padding: 10px 12px;
-        border-radius: 14px;
-        background: rgba(255,255,255,0.7);
-        border: 1px solid var(--line);
-        font-size: 13px;
-        color: var(--muted);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .meta-chip {
-          background: rgba(20, 31, 46, 0.78);
-        }
-      }
-
-      .meta-chip.live {
-        background: rgba(181, 93, 47, 0.1);
+      .last-updated {
         color: var(--accent);
+        font-size: 13px;
+        letter-spacing: 0.02em;
+        margin-top: auto;
+        padding-top: 18px;
+      }
+
+      .widget.compact .last-updated {
+        padding-top: 12px;
       }
 
       .details {
@@ -344,7 +331,7 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
         </div>
       </section>
       <section class="content">
-        <div>
+        <div class="summary-panel">
           <div class="stats" id="ups-stats">
             <article class="stat-card">
               <div class="stat-label">Battery</div>
@@ -363,12 +350,7 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
               <div class="stat-value">--</div>
             </article>
           </div>
-          <div class="meta" id="ups-meta">
-            <div class="meta-chip">UPS Name: --</div>
-            <div class="meta-chip">Manufacturer: --</div>
-            <div class="meta-chip">Model: --</div>
-            <div class="meta-chip live" id="ups-refresh">Refreshes every ${escapeHtml(refreshIntervalSeconds)} seconds</div>
-          </div>
+          <div class="last-updated" id="ups-refresh">Refreshes every ${escapeHtml(refreshIntervalSeconds)} seconds</div>
         </div>
         <aside class="details">
           <h2>Telemetry</h2>
@@ -473,12 +455,7 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
         statusEl.className = "status-pill " + statusTone(status);
 
         document.getElementById("ups-stats").innerHTML = renderStats(data);
-        document.getElementById("ups-meta").innerHTML = \`
-          <div class="meta-chip">UPS Name: \${escapeHtml(payload.ups_name || "--")}</div>
-          <div class="meta-chip">Manufacturer: \${escapeHtml(manufacturer || "Unavailable")}</div>
-          <div class="meta-chip">Model: \${escapeHtml(model || "Unavailable")}</div>
-          <div class="meta-chip live" id="ups-refresh">Updated \${new Date().toLocaleTimeString()} | Every \${REFRESH_INTERVAL_SECONDS}s</div>
-        \`;
+        document.getElementById("ups-refresh").textContent = \`Updated \${new Date().toLocaleTimeString()} | Every \${REFRESH_INTERVAL_SECONDS}s\`;
         document.getElementById("ups-details").innerHTML = renderDetails(data);
       }
 

@@ -1,4 +1,5 @@
 import net from "node:net";
+import { logError, logInfo } from "./logger.js";
 
 export class NutError extends Error {}
 
@@ -31,13 +32,24 @@ export class NutClient {
   //-----------------------------------------------------------------------------
   async fetchUpsVariables() {
 
+    const startedAt = Date.now();
+
+    logInfo("nut.fetch.start", {
+      host: this.host,
+      port: this.port,
+      upsName: this.upsName,
+      authEnabled: Boolean(this.username && this.password)
+    });
+
     if ((this.username && !this.password) || (!this.username && this.password)) {
       throw new NutError("Both NUT_USERNAME and NUT_PASSWORD must be set together.");
     }
 
-    const connection = await this.#connect();
+    let connection;
 
     try {
+      connection = await this.#connect();
+
       if (this.username && this.password) {
         const usernameResponse = await connection.sendCommand(`USERNAME ${this.username}`);
         this.#expectOk(usernameResponse, "username");
@@ -51,9 +63,29 @@ export class NutClient {
         endLine: `END LIST VAR ${this.upsName}`
       });
 
-      return this.#parseVarLines(lines);
+      const values = this.#parseVarLines(lines);
+
+      logInfo("nut.fetch.success", {
+        host: this.host,
+        port: this.port,
+        upsName: this.upsName,
+        variableCount: Object.keys(values).length,
+        durationMs: Date.now() - startedAt
+      });
+
+      return values;
+    } catch (error) {
+      logError("nut.fetch.error", error, {
+        host: this.host,
+        port: this.port,
+        upsName: this.upsName,
+        durationMs: Date.now() - startedAt
+      });
+      throw error;
     } finally {
-      connection.close();
+      if (connection) {
+        connection.close();
+      }
     }
   }
 
@@ -229,6 +261,10 @@ export class NutClient {
             endLine: options.endLine || null
           });
           socket.write(`${command}\n`);
+          logInfo("nut.command.sent", {
+            command: command.split(" ")[0],
+            upsName: command.includes("LIST VAR") ? command.replace("LIST VAR ", "") : undefined
+          });
           drainBuffer();
         });
       }
