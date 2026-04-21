@@ -4,9 +4,15 @@
   "description": "Docker-ready Node.js API for exposing UPS data from a Synology NUT server.",
   "type": "module",
   "scripts": {
+    "lint": "eslint src tests",
     "start": "node src/server.js",
     "start:dev": "node src/server.js dev",
     "test": "node tests/run-tests.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.1",
+    "eslint": "^9.25.1",
+    "globals": "^15.15.0"
   },
   "engines": {
     "node": ">=20"

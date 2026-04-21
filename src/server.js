@@ -122,10 +122,7 @@ function applyRateLimit(request, response, pathname) {
   const clientIp = getClientIp(request);
   const bucketKey = `${config.key}:${clientIp}`;
   const existingBucket = rateLimitStore.get(bucketKey);
-  const bucket =
-    existingBucket && existingBucket.resetAt > now
-      ? existingBucket
-      : { count: 0, resetAt: now + config.windowMs };
+  const bucket = existingBucket && existingBucket.resetAt > now ? existingBucket : { count: 0, resetAt: now + config.windowMs };
 
   bucket.count += 1;
   rateLimitStore.set(bucketKey, bucket);
