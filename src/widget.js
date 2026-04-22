@@ -65,7 +65,7 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
         background: var(--panel);
         backdrop-filter: blur(18px);
         border: 1px solid var(--line);
-        border-radius: 28px;
+        border-radius: 24px;
         overflow: hidden;
       }
 
