@@ -8,6 +8,7 @@ import { renderUpsWidget } from "./widget.js";
 const settings = getSettings();
 const useDevClient = process.argv.includes("dev");
 const rateLimitStore = new Map();
+const WIDGET_THEMES = ["blue", "creme", "homarr", "white"];
 const RATE_LIMITS = {
   health: { windowMs: 60000, maxRequests: settings.rateLimitHealth },
   api: { windowMs: 60000, maxRequests: settings.rateLimitApi },
@@ -115,6 +116,15 @@ function getRateLimitConfig(pathname) {
   }
 
   return null;
+}
+
+//-----------------------------------------------------------------------------
+// getWidgetTheme
+//-----------------------------------------------------------------------------
+function getWidgetTheme(url) {
+
+  const theme = url.searchParams.get("theme");
+  return WIDGET_THEMES.includes(theme) ? theme : "blue";
 }
 
 //-----------------------------------------------------------------------------
@@ -266,7 +276,8 @@ const server = http.createServer(async (request, response) => {
   if (url.pathname === "/widget/ups") {
 
     const widgetSize = url.searchParams.get("size") === "compact" ? "compact" : "full";
-    sendHtml(response, 200, renderUpsWidget(settings.refreshIntervalSeconds, widgetSize));
+    const widgetTheme = getWidgetTheme(url);
+    sendHtml(response, 200, renderUpsWidget(settings.refreshIntervalSeconds, widgetSize, widgetTheme));
     return;
   }
 

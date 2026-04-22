@@ -30,15 +30,24 @@ async function main() {
   {
     const html = renderUpsWidget(45);
     const compactHtml = renderUpsWidget(45, "compact");
+    const blueHtml = renderUpsWidget(45, "full", "blue");
+    const homarrHtml = renderUpsWidget(45, "full", "homarr");
+    const whiteHtml = renderUpsWidget(45, "full", "white");
 
     assert.match(html, /Synology NUT Monitor/);
+    assert.match(html, /<body class="theme-blue">/);
     assert.match(html, /class="widget full"/);
+    assert.match(blueHtml, /<body class="theme-blue">/);
+    assert.match(blueHtml, /body\.theme-blue \.hero/);
+    assert.match(homarrHtml, /<body class="theme-homarr">/);
+    assert.match(homarrHtml, /body\.theme-homarr \.hero/);
+    assert.match(whiteHtml, /<body class="theme-white">/);
+    assert.match(whiteHtml, /body\.theme-white \.hero/);
     assert.match(compactHtml, /class="widget compact"/);
     assert.match(html, /fetch\("\/api\/ups"/);
     assert.match(html, /setInterval\(refreshWidget,\s*REFRESH_INTERVAL_SECONDS \* 1000\)/);
     assert.match(html, /const REFRESH_INTERVAL_SECONDS = 45/);
     assert.match(html, /Refreshes every 45 seconds/);
-    assert.match(html, /prefers-color-scheme: dark/);
   }
 
   console.log("All tests passed.");

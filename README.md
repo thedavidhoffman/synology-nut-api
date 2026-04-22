@@ -15,8 +15,14 @@ I created this project using Codex. I then made several passes (using AI) to cle
 - `GET /health` returns a basic health check
 - `GET /api/ups` returns all UPS variables reported by NUT
 - `GET /api/ups/{variable}` returns a single UPS variable such as `battery.charge`
-- `GET /widget/ups` returns a styled full-size HTML widget view of the same UPS telemetry
-- `GET /widget/ups?size=compact` returns a compact HTML widget view
+- `GET /widget/ups` returns a styled full-size HTML widget view of the UPS telemetry
+
+Widget querystring parameters:
+
+| Parameter | Accepted values | Default | Unknown value behavior |
+| --- | --- | --- | --- |
+| `size` | `full`, `compact` | `full` | Falls back to `full` |
+| `theme` | `blue`, `creme`, `homarr`, `white` | `blue` | Falls back to `blue` |
 
 Example response from `GET /api/ups`:
 
@@ -69,13 +75,6 @@ Update [`docker-compose.yml`] with your Synology NAS address, then run:
 docker compose up --build -d
 ```
 
-The API will be available at:
-
-- [http://localhost:8000/health](http://localhost:8000/health)
-- [http://localhost:8000/api/ups](http://localhost:8000/api/ups)
-- [http://localhost:8000/widget/ups](http://localhost:8000/widget/ups)
-- [http://localhost:8000/widget/ups?size=compact](http://localhost:8000/widget/ups?size=compact)
-
 ## 🐳 Run with plain Docker
 
 ```powershell
@@ -115,8 +114,11 @@ Widget modes:
 
 - Full-size widget: `http://192.168.1.10:8000/widget/ups`
 - Compact widget: `http://192.168.1.10:8000/widget/ups?size=compact`
-
-If `size` is omitted, the widget defaults to full size. Unknown `size` values also fall back to full size.
+- Creme theme: `http://192.168.1.10:8000/widget/ups?theme=creme`
+- Blue theme: `http://192.168.1.10:8000/widget/ups?theme=blue`
+- Homarr theme: `http://192.168.1.10:8000/widget/ups?theme=homarr`
+- White theme: `http://192.168.1.10:8000/widget/ups?theme=white`
+- Compact blue widget: `http://192.168.1.10:8000/widget/ups?size=compact&theme=blue`
 
 1. Make sure Homarr can reach this app over the network.
 2. Copy the widget URL for your environment, for example:

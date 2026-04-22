@@ -12,22 +12,16 @@ function escapeHtml(value) {
 }
 
 //-----------------------------------------------------------------------------
-// renderUpsWidget
+// getWidgetThemeCss
 //-----------------------------------------------------------------------------
-export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
+function getWidgetThemeCss(theme) {
 
-  const normalizedWidgetSize = widgetSize === "compact" ? "compact" : "full";
-
-  return `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>UPS Widget</title>
-    <style>
-      :root {
-        color-scheme: light dark;
+  if (theme === "creme") {
+    return `
+      body.theme-creme {
         --panel: rgba(255, 251, 245, 0.86);
+        --stat-card: rgba(255, 255, 255, 0.62);
+        --detail-row: rgba(255,255,255,0.72);
         --ink: #2a2116;
         --muted: #6c5a43;
         --line: rgba(90, 63, 31, 0.15);
@@ -38,25 +32,105 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
         --warning: #8a3b2e;
       }
 
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --panel: rgba(9, 15, 23, 0.82);
-          --ink: #edf4ff;
-          --muted: #9fb2c9;
-          --line: rgba(173, 203, 239, 0.14);
-          --accent: #f2a65a;
-          --accent-soft: rgba(242, 166, 90, 0.14);
-          --online: #5fd08c;
-          --battery: #ffb357;
-          --warning: #ff8e72;
-        }
+      body.theme-creme .hero {
+        background:
+          linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.18)),
+          linear-gradient(120deg, #efe0c4, #f9f5ee 56%, #e7d4b2);
+      }`;
+  }
+
+  if (theme === "homarr") {
+    return `
+      body.theme-homarr {
+        --panel: #2E2E2E;
+        --stat-card: #424242;
+        --detail-row: rgba(180, 180, 180, 0.1);
+        --ink: #f8fafc;
+        --muted: #e0e0e0;
+        --line: rgba(148, 163, 184, 0.18);
+        --accent: #f18d58;
+        --accent-soft: rgba(250, 82, 82, 0.14);
+        --online: #40c057;
+        --battery: #fab005;
+        --warning: #ff8787;
       }
+
+      body.theme-homarr .hero {
+        background:
+          rgba(180, 180, 180, 0.1);
+      }`;
+  }
+
+  if (theme === "white") {
+    return `
+      body.theme-white {
+        --panel: #ffffff;
+        --stat-card: #f8fafc;
+        --detail-row: #f1f5f9;
+        --ink: #111827;
+        --muted: #64748b;
+        --line: rgba(15, 23, 42, 0.12);
+        --accent: #2563eb;
+        --accent-soft: rgba(37, 99, 235, 0.1);
+        --online: #15803d;
+        --battery: #b45309;
+        --warning: #b91c1c;
+      }
+
+      body.theme-white .hero {
+        background:
+          linear-gradient(135deg, rgba(255,255,255,0.86), rgba(255,255,255,0.5)),
+          linear-gradient(120deg, #ffffff, #f8fafc 58%, #e2e8f0);
+      }`;
+  }
+
+  return `
+    body.theme-blue {
+      --panel: #0C131D;
+      --stat-card: #0D1723;
+      --detail-row: rgba(18, 29, 43, 0.86);
+      --ink: #edf4ff;
+      --muted: #9fb2c9;
+      --line: rgba(173, 203, 239, 0.14);
+      --accent: #f2a65a;
+      --accent-soft: rgba(242, 166, 90, 0.14);
+      --online: #5fd08c;
+      --battery: #ffb357;
+      --warning: #ff8e72;
+    }
+
+    body.theme-blue .hero {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+        linear-gradient(120deg, #1a2940, #102132 58%, #0c1521);
+    }`;
+}
+
+//-----------------------------------------------------------------------------
+// renderUpsWidget
+//-----------------------------------------------------------------------------
+export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", widgetTheme = "blue") {
+
+  const normalizedWidgetSize = widgetSize === "compact" ? "compact" : "full";
+  const supportedWidgetThemes = ["blue", "creme", "homarr", "white"];
+  const normalizedWidgetTheme = supportedWidgetThemes.includes(widgetTheme) ? widgetTheme : "blue";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UPS Widget</title>
+    <style>
+
+      ${getWidgetThemeCss(normalizedWidgetTheme)}
 
       * { box-sizing: border-box; }
       body {
         margin: 0;
         font-family: "Segoe UI", "Trebuchet MS", sans-serif;
         background: transparent;
+        color: var(--ink);
         padding: 0;
       }
 
@@ -65,33 +139,20 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
         background: var(--panel);
         backdrop-filter: blur(18px);
         border: 1px solid var(--line);
-        border-radius: 24px;
         overflow: hidden;
       }
 
       .widget.compact {
         width: min(420px, 100%);
-        border-radius: 22px;
       }
 
       .hero {
         position: relative;
         padding: 38px 28px 20px;
-        background:
-          linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.18)),
-          linear-gradient(120deg, #efe0c4, #f9f5ee 56%, #e7d4b2);
       }
 
       .widget.compact .hero {
         padding: 36px 20px 14px;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .hero {
-          background:
-            linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
-            linear-gradient(120deg, #1a2940, #102132 58%, #0c1521);
-        }
       }
 
       .eyebrow {
@@ -176,20 +237,14 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
         gap: 10px;
       }
 
+      .stat-card {
+        padding: 18px;
+      }
+
       .stat-card, .details {
         border: 1px solid var(--line);
         border-radius: 22px;
-        background: rgba(255, 255, 255, 0.62);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .stat-card, .details {
-          background: rgba(14, 24, 36, 0.82);
-        }
-      }
-
-      .stat-card {
-        padding: 18px;
+        background: var(--stat-card);
       }
 
       .widget.compact .stat-card {
@@ -253,13 +308,7 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
         gap: 14px;
         padding: 10px 12px;
         border-radius: 14px;
-        background: rgba(255,255,255,0.72);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .detail-row {
-          background: rgba(18, 29, 43, 0.86);
-        }
+        background: var(--detail-row);
       }
 
       .detail-key {
@@ -310,7 +359,7 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
       }
     </style>
   </head>
-  <body>
+  <body class="theme-${escapeHtml(normalizedWidgetTheme)}">
     <main class="widget ${escapeHtml(normalizedWidgetSize)}">
       <section class="hero">
         <div class="eyebrow">Synology NUT Monitor</div>
