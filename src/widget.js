@@ -27,7 +27,6 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
     <style>
       :root {
         color-scheme: light dark;
-        --bg: radial-gradient(circle at top, #f7f2e8 0%, #efe4d2 38%, #d9c4a7 100%);
         --panel: rgba(255, 251, 245, 0.86);
         --ink: #2a2116;
         --muted: #6c5a43;
@@ -41,7 +40,6 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
 
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: radial-gradient(circle at top, #203044 0%, #111b28 42%, #090f17 100%);
           --panel: rgba(9, 15, 23, 0.82);
           --ink: #edf4ff;
           --muted: #9fb2c9;
@@ -57,13 +55,9 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        min-height: 100vh;
         font-family: "Segoe UI", "Trebuchet MS", sans-serif;
-        background: var(--bg);
-        color: var(--ink);
-        display: grid;
-        place-items: center;
-        padding: 24px;
+        background: transparent;
+        padding: 0;
       }
 
       .widget {
@@ -73,7 +67,6 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
         border: 1px solid var(--line);
         border-radius: 28px;
         overflow: hidden;
-        box-shadow: 0 28px 80px rgba(60, 35, 10, 0.18);
       }
 
       .widget.compact {
@@ -312,7 +305,6 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full") {
       }
 
       @media (max-width: 520px) {
-        body { padding: 12px; }
         .hero, .content { padding-left: 18px; padding-right: 18px; }
         .stats { grid-template-columns: 1fr; }
       }

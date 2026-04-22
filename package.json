@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "lint": "eslint src tests",
-    "start": "node src/server.js",
-    "start:dev": "node src/server.js dev",
+    "start": "node --watch src/server.js",
+    "start:dev": "node --watch src/server.js dev",
     "test": "node tests/run-tests.js"
   },
   "devDependencies": {

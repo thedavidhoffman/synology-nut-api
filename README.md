@@ -1,6 +1,6 @@
 # Synology NUT API
 
-This project runs a small Node.js HTTP API in Docker and reads UPS telemetry from Synology's built-in NUT (`upsd`) server.
+This project runs a small Node.js HTTP API in Docker and reads UPS telemetry from Synology's built-in NUT (`upsd`) server. It should work against any NUT server (with proper configuration via the ENV VARS), but I've only tested it against Synology.
 
 ## 🔋 Why?
 
@@ -15,7 +15,8 @@ I created this project using Codex. I then made several passes (using AI) to cle
 - `GET /health` returns a basic health check
 - `GET /api/ups` returns all UPS variables reported by NUT
 - `GET /api/ups/{variable}` returns a single UPS variable such as `battery.charge`
-- `GET /widget/ups` returns a styled HTML widget view of the same UPS telemetry
+- `GET /widget/ups` returns a styled full-size HTML widget view of the same UPS telemetry
+- `GET /widget/ups?size=compact` returns a compact HTML widget view
 
 Example response from `GET /api/ups`:
 
@@ -73,6 +74,7 @@ The API will be available at:
 - [http://localhost:8000/health](http://localhost:8000/health)
 - [http://localhost:8000/api/ups](http://localhost:8000/api/ups)
 - [http://localhost:8000/widget/ups](http://localhost:8000/widget/ups)
+- [http://localhost:8000/widget/ups?size=compact](http://localhost:8000/widget/ups?size=compact)
 
 ## 🐳 Run with plain Docker
 
@@ -107,11 +109,18 @@ If you want to run the container directly on the Synology NAS:
 
 ## 🏠 Add the widget to Homarr
 
-You can add the HTML widget endpoint to a Homarr board by embedding [`/widget/ups`](http://localhost:8000/widget/ups).
+You can add the HTML widget endpoint to a Homarr board by embedding either the full-size or compact widget.
+
+Widget modes:
+
+- Full-size widget: `http://192.168.1.10:8000/widget/ups`
+- Compact widget: `http://192.168.1.10:8000/widget/ups?size=compact`
+
+If `size` is omitted, the widget defaults to full size. Unknown `size` values also fall back to full size.
 
 1. Make sure Homarr can reach this app over the network.
 2. Copy the widget URL for your environment, for example:
-   `http://192.168.1.10:8000/widget/ups`
+   `http://192.168.1.10:8000/widget/ups?size=compact`
 3. In Homarr, open your board in edit mode.
 4. Add a widget that supports embedding an external page, such as an `iframe`, `website`, or `custom app` style tile depending on your Homarr version.
 5. Paste the widget URL into the target URL field.
