@@ -32,7 +32,7 @@ function getWidgetThemeCss(theme) {
         --warning: #8a3b2e;
       }
 
-      body.theme-creme .hero {
+      body.theme-creme .hero::before {
         background:
           linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.18)),
           linear-gradient(120deg, #efe0c4, #f9f5ee 56%, #e7d4b2);
@@ -55,7 +55,7 @@ function getWidgetThemeCss(theme) {
         --warning: #ff8787;
       }
 
-      body.theme-homarr .hero {
+      body.theme-homarr .hero::before {
         background:
           rgba(180, 180, 180, 0.1);
       }`;
@@ -77,7 +77,7 @@ function getWidgetThemeCss(theme) {
         --warning: #b91c1c;
       }
 
-      body.theme-white .hero {
+      body.theme-white .hero::before {
         background:
           linear-gradient(135deg, rgba(255,255,255,0.86), rgba(255,255,255,0.5)),
           linear-gradient(120deg, #ffffff, #f8fafc 58%, #e2e8f0);
@@ -99,7 +99,7 @@ function getWidgetThemeCss(theme) {
       --warning: #ff8e72;
     }
 
-    body.theme-blue .hero {
+    body.theme-blue .hero::before {
       background:
         linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
         linear-gradient(120deg, #1a2940, #102132 58%, #0c1521);
@@ -135,24 +135,38 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
       }
 
       .widget {
+        --widget-x-padding: 28px;
         width: min(920px, 100%);
         margin: 0 auto;
         background: var(--panel);
         backdrop-filter: blur(18px);
-        overflow: hidden;
       }
 
       .widget.compact {
+        --widget-x-padding: 20px;
         width: min(420px, 100%);
       }
 
       .hero {
         position: relative;
-        padding: 38px 28px 20px;
+        isolation: isolate;
+        padding: 38px var(--widget-x-padding) 20px;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 100vw;
+        transform: translateX(-50%);
+        z-index: -1;
       }
 
       .widget.compact .hero {
-        padding: 36px 20px 14px;
+        padding-top: 36px;
+        padding-bottom: 14px;
       }
 
       .eyebrow {
@@ -190,7 +204,7 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
       .status-pill {
         position: absolute;
         top: 14px;
-        right: 16px;
+        right: var(--widget-x-padding);
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -213,7 +227,7 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
         display: grid;
         grid-template-columns: 1.1fr 0.9fr;
         gap: 22px;
-        padding: 24px 28px 28px;
+        padding: 24px var(--widget-x-padding) 28px;
       }
 
       .summary-panel {
@@ -224,7 +238,8 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
 
       .widget.compact .content {
         display: block;
-        padding: 18px 20px 20px;
+        padding-top: 18px;
+        padding-bottom: 20px;
       }
 
       .stats {
@@ -354,7 +369,7 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
       }
 
       @media (max-width: 520px) {
-        .hero, .content { padding-left: 18px; padding-right: 18px; }
+        .widget { --widget-x-padding: 18px; }
         .stats { grid-template-columns: 1fr; }
       }
     </style>
