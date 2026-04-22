@@ -8,6 +8,7 @@ import { renderUpsWidget } from "./widget.js";
 const settings = getSettings();
 const useDevClient = process.argv.includes("dev");
 const rateLimitStore = new Map();
+const WIDGET_SIZES = ["full", "compact", "tiny"];
 const WIDGET_THEMES = ["blue", "creme", "homarr", "white"];
 const RATE_LIMITS = {
   health: { windowMs: 60000, maxRequests: settings.rateLimitHealth },
@@ -125,6 +126,15 @@ function getWidgetTheme(url) {
 
   const theme = url.searchParams.get("theme");
   return WIDGET_THEMES.includes(theme) ? theme : "blue";
+}
+
+//-----------------------------------------------------------------------------
+// getWidgetSize
+//-----------------------------------------------------------------------------
+function getWidgetSize(url) {
+
+  const size = url.searchParams.get("size");
+  return WIDGET_SIZES.includes(size) ? size : "full";
 }
 
 //-----------------------------------------------------------------------------
@@ -275,7 +285,7 @@ const server = http.createServer(async (request, response) => {
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if (url.pathname === "/widget/ups") {
 
-    const widgetSize = url.searchParams.get("size") === "compact" ? "compact" : "full";
+    const widgetSize = getWidgetSize(url);
     const widgetTheme = getWidgetTheme(url);
     sendHtml(response, 200, renderUpsWidget(settings.refreshIntervalSeconds, widgetSize, widgetTheme));
     return;

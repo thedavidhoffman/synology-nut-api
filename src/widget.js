@@ -111,9 +111,29 @@ function getWidgetThemeCss(theme) {
 //-----------------------------------------------------------------------------
 export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", widgetTheme = "blue") {
 
-  const normalizedWidgetSize = widgetSize === "compact" ? "compact" : "full";
+  const supportedWidgetSizes = ["full", "compact", "tiny"];
+  const normalizedWidgetSize = supportedWidgetSizes.includes(widgetSize) ? widgetSize : "full";
   const supportedWidgetThemes = ["blue", "creme", "homarr", "white"];
   const normalizedWidgetTheme = supportedWidgetThemes.includes(widgetTheme) ? widgetTheme : "blue";
+  const showTelemetry = normalizedWidgetSize !== "tiny";
+  const telemetryHtml = showTelemetry ? `
+        <aside class="details">
+          <h2>Telemetry</h2>
+          <div class="detail-grid" id="ups-details">
+            <div class="loading">
+              <div class="loading-bar"></div>
+              <div class="loading-bar small"></div>
+              <div class="loading-bar"></div>
+            </div>
+          </div>
+        </aside>` : "";
+  const initialStats = showTelemetry ? ["Battery", "Runtime", "Load", "Input"] : ["Battery", "Load"];
+  const initialStatTagName = normalizedWidgetSize === "tiny" ? "div" : "article";
+  const initialStatsHtml = initialStats.map((label) => `
+            <${initialStatTagName} class="stat-card">
+              <div class="stat-label">${escapeHtml(label)}</div>
+              <div class="stat-value">--</div>
+            </${initialStatTagName}>`).join("");
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -147,10 +167,20 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
         width: min(420px, 100%);
       }
 
+      .widget.tiny {
+        --widget-x-padding: 14px;
+        width: min(300px, 100%);
+      }
+
       .hero {
         position: relative;
         isolation: isolate;
-        padding: 38px var(--widget-x-padding) 20px;
+        padding: 24px var(--widget-x-padding) 20px;
+      }
+
+      .widget.tiny .hero {
+        padding-top: 12px;
+        padding-bottom: 10px;
       }
 
       .hero::before {
@@ -164,17 +194,16 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
         z-index: -1;
       }
 
-      .widget.compact .hero {
-        padding-top: 36px;
-        padding-bottom: 14px;
-      }
-
       .eyebrow {
         text-transform: uppercase;
         letter-spacing: 0.16em;
         font-size: 11px;
         color: var(--muted);
         margin-bottom: 10px;
+      }
+
+      .widget.tiny .eyebrow {
+        margin-bottom: 3px;
       }
 
       .headline {
@@ -191,6 +220,12 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
         line-height: 1;
       }
 
+      .widget.tiny h1 {
+        font-size: 14px;
+        line-height: 1.05;
+        padding-right: 78px;
+      }
+
       .subhead {
         margin-top: 10px;
         color: var(--muted);
@@ -201,21 +236,32 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
         font-size: 13px;
       }
 
+      .widget.tiny .subhead {
+        display: none;
+      }
+
       .status-pill {
         position: absolute;
-        top: 14px;
+        top: 20px;
         right: var(--widget-x-padding);
         display: inline-flex;
         align-items: center;
         gap: 6px;
         border-radius: 999px;
         padding: 8px 12px;
-        font-size: 13px;
-        font-weight: 700;
+        font-size: 10px;
         letter-spacing: 0.04em;
         text-transform: uppercase;
         background: var(--accent-soft);
         color: var(--accent);
+      }
+
+      .widget.tiny .status-pill {
+        top: 13px;
+        gap: 4px;
+        padding: 0;
+        font-size: 9px;
+        background: transparent;
       }
 
       .status-pill.online { background: rgba(60, 122, 71, 0.16); color: var(--online); }
@@ -242,6 +288,12 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
         padding-bottom: 20px;
       }
 
+      .widget.tiny .content {
+        display: block;
+        padding-top: 12px;
+        padding-bottom: 14px;
+      }
+
       .stats {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -250,6 +302,10 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
 
       .widget.compact .stats {
         gap: 10px;
+      }
+
+      .widget.tiny .stats {
+        display: block;
       }
 
       .stat-card {
@@ -264,6 +320,22 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
 
       .widget.compact .stat-card {
         padding: 14px;
+      }
+
+      .widget.tiny .stat-card {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 6px 0;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        border-radius: 0;
+        background: transparent;
+      }
+
+      .widget.tiny .stat-card:last-child {
+        border-bottom: 0;
       }
 
       .stat-label {
@@ -283,11 +355,20 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
         font-size: 21px;
       }
 
+      .widget.tiny .stat-label {
+        font-size: 9px;
+      }
+
+      .widget.tiny .stat-value {
+        margin-top: 0;
+        font-size: 13px;
+        text-align: right;
+      }
+
       .last-updated {
         color: var(--accent);
         font-size: 13px;
         letter-spacing: 0.02em;
-        margin-top: auto;
         padding-top: 18px;
       }
 
@@ -295,11 +376,20 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
         padding-top: 12px;
       }
 
+      .widget.tiny .last-updated {
+        font-size: 10px;
+        padding-top: 10px;
+      }
+
       .details {
         padding: 18px;
       }
 
       .widget.compact .details {
+        display: none;
+      }
+
+      .widget.tiny .details {
         display: none;
       }
 
@@ -358,7 +448,7 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
         to { background-position: -200% 0; }
       }
 
-      @media (max-width: 760px) {
+      @media (max-width: 640px) {
         .content {
           grid-template-columns: 1fr;
         }
@@ -369,7 +459,10 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
       }
 
       @media (max-width: 520px) {
-        .widget { --widget-x-padding: 18px; }
+        .widget:not(.tiny) { --widget-x-padding: 18px; }
+      }
+
+      @media (max-width: 320px) {
         .stats { grid-template-columns: 1fr; }
       }
     </style>
@@ -389,39 +482,16 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
       <section class="content">
         <div class="summary-panel">
           <div class="stats" id="ups-stats">
-            <article class="stat-card">
-              <div class="stat-label">Battery</div>
-              <div class="stat-value">--</div>
-            </article>
-            <article class="stat-card">
-              <div class="stat-label">Runtime</div>
-              <div class="stat-value">--</div>
-            </article>
-            <article class="stat-card">
-              <div class="stat-label">Load</div>
-              <div class="stat-value">--</div>
-            </article>
-            <article class="stat-card">
-              <div class="stat-label">Input</div>
-              <div class="stat-value">--</div>
-            </article>
+${initialStatsHtml}
           </div>
           <div class="last-updated" id="ups-refresh">Refreshes every ${escapeHtml(refreshIntervalSeconds)} seconds</div>
         </div>
-        <aside class="details">
-          <h2>Telemetry</h2>
-          <div class="detail-grid" id="ups-details">
-            <div class="loading">
-              <div class="loading-bar"></div>
-              <div class="loading-bar small"></div>
-              <div class="loading-bar"></div>
-            </div>
-          </div>
-        </aside>
+${telemetryHtml}
       </section>
     </main>
     <script>
       const REFRESH_INTERVAL_SECONDS = ${JSON.stringify(refreshIntervalSeconds)};
+      const WIDGET_SIZE = ${JSON.stringify(normalizedWidgetSize)};
 
       function escapeHtml(value) {
         return String(value)
@@ -469,13 +539,20 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
           { label: "Load", value: pickValue(data, ["ups.load"]) ? pickValue(data, ["ups.load"]) + "%" : "Unavailable" },
           { label: "Input", value: pickValue(data, ["input.voltage"]) ? pickValue(data, ["input.voltage"]) + " V" : "Unavailable" }
         ];
+        const visibleStats = WIDGET_SIZE === "tiny"
+          ? stats.filter((stat) => stat.label !== "Runtime" && stat.label !== "Input")
+          : stats;
 
-        return stats.map((stat) => \`
-          <article class="stat-card">
-            <div class="stat-label">\${escapeHtml(stat.label)}</div>
-            <div class="stat-value">\${escapeHtml(stat.value)}</div>
-          </article>
-        \`).join("");
+        return visibleStats.map((stat) => {
+          const tagName = WIDGET_SIZE === "tiny" ? "div" : "article";
+
+          return \`
+            <\${tagName} class="stat-card">
+              <div class="stat-label">\${escapeHtml(stat.label)}</div>
+              <div class="stat-value">\${escapeHtml(stat.value)}</div>
+            </\${tagName}>
+          \`;
+        }).join("");
       }
 
       function renderDetails(data) {
@@ -512,7 +589,10 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
 
         document.getElementById("ups-stats").innerHTML = renderStats(data);
         document.getElementById("ups-refresh").textContent = \`Updated \${new Date().toLocaleTimeString()} | Every \${REFRESH_INTERVAL_SECONDS}s\`;
-        document.getElementById("ups-details").innerHTML = renderDetails(data);
+        const detailsEl = document.getElementById("ups-details");
+        if (detailsEl) {
+          detailsEl.innerHTML = renderDetails(data);
+        }
       }
 
       function showError(message) {
@@ -521,12 +601,15 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
         const statusEl = document.getElementById("ups-status");
         statusEl.textContent = "Unavailable";
         statusEl.className = "status-pill warning";
-        document.getElementById("ups-details").innerHTML = \`
-          <div class="detail-row">
-            <span class="detail-key">Error</span>
-            <span class="detail-value">\${escapeHtml(message)}</span>
-          </div>
-        \`;
+        const detailsEl = document.getElementById("ups-details");
+        if (detailsEl) {
+          detailsEl.innerHTML = \`
+            <div class="detail-row">
+              <span class="detail-key">Error</span>
+              <span class="detail-value">\${escapeHtml(message)}</span>
+            </div>
+          \`;
+        }
       }
 
       async function refreshWidget() {

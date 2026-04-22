@@ -30,6 +30,7 @@ async function main() {
   {
     const html = renderUpsWidget(45);
     const compactHtml = renderUpsWidget(45, "compact");
+    const tinyHtml = renderUpsWidget(45, "tiny");
     const blueHtml = renderUpsWidget(45, "full", "blue");
     const homarrHtml = renderUpsWidget(45, "full", "homarr");
     const whiteHtml = renderUpsWidget(45, "full", "white");
@@ -44,6 +45,11 @@ async function main() {
     assert.match(whiteHtml, /<body class="theme-white">/);
     assert.match(whiteHtml, /body\.theme-white \.hero/);
     assert.match(compactHtml, /class="widget compact"/);
+    assert.match(tinyHtml, /class="widget tiny"/);
+    assert.match(tinyHtml, /const WIDGET_SIZE = "tiny"/);
+    assert.doesNotMatch(tinyHtml, /<aside class="details">/);
+    assert.doesNotMatch(tinyHtml, /id="ups-details"/);
+    assert.doesNotMatch(tinyHtml.slice(0, tinyHtml.indexOf("<script>")), /Runtime|Input/);
     assert.match(html, /fetch\("\/api\/ups"/);
     assert.match(html, /setInterval\(refreshWidget,\s*REFRESH_INTERVAL_SECONDS \* 1000\)/);
     assert.match(html, /const REFRESH_INTERVAL_SECONDS = 45/);

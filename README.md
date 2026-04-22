@@ -1,6 +1,12 @@
 # Synology NUT API
 
-This project runs a small Node.js HTTP API in Docker and reads UPS telemetry from Synology's built-in NUT (`upsd`) server. It should work against any NUT server (with proper configuration via the ENV VARS), but I've only tested it against Synology.
+## This project runs a small Node.js HTTP API in Docker and reads UPS telemetry from Synology's built-in NUT (`upsd`) server. It should work against any NUT server (with proper configuration via the ENV VARS), but I've only tested it against Synology.
+
+![Widget theme examples](imgs/demo-four-themes.png)
+
+![Widget size examples](imgs/demo-three-sizes.png)
+
+![API example](imgs/demo-api.png)
 
 ## 🔋 Why?
 
@@ -8,7 +14,7 @@ I run [Homarr](https://homarr.dev/) for my homelab's dashboard (for my Synology 
 
 ## 🤖 Disclaimer
 
-I created this project using Codex. I then made several passes (using AI) to clean up the code and bring it more in line with my specs.
+I created this project using Codex. I then made several passes (using AI) to clean up the code, build it out more, and bring it in line with my specs. The only place where the AI really "failed" is when I tried to make a small CSS theme pattern, I had to really step in there and handle things myself. But otherwise, the AI helped me create this project in essentially two days, doing things I didn't have any prior experience in.
 
 ## 🚀 What it exposes
 
@@ -21,7 +27,7 @@ Widget querystring parameters:
 
 | Parameter | Accepted values | Default | Unknown value behavior |
 | --- | --- | --- | --- |
-| `size` | `full`, `compact` | `full` | Falls back to `full` |
+| `size` | `full`, `compact`, `tiny` | `full` | Falls back to `full` |
 | `theme` | `blue`, `creme`, `homarr`, `white` | `blue` | Falls back to `blue` |
 
 Example response from `GET /api/ups`:
@@ -43,14 +49,6 @@ Example response from `GET /api/ups`:
 }
 ```
 
-## 🧰 Synology setup
-
-1. In DSM, enable the Synology UPS service and the network UPS server. (Control Panel... Power & Hardware... UPS)
-2. Add the Docker host as an allowed network UPS client if Synology asks for permitted IPs.
-3. Note the Synology NAS IP address and the UPS device name.
-
-The default NUT port is `3493`. Many Synology setups expose the UPS as `ups`, but some use another name. If you are unsure, start with `ups`.
-
 ## ⚙️ Docker Configuration
 
 The docker container uses the following environment variables:
@@ -66,14 +64,6 @@ The docker container uses the following environment variables:
 - `RATE_LIMIT_HEALTH`: requests per minute allowed for `/health`, default `60`
 - `RATE_LIMIT_API`: requests per minute allowed for `/api/ups` and `/api/ups/{variable}`, default `12`
 - `RATE_LIMIT_WIDGET`: requests per minute allowed for `/widget/ups`, default `30`
-
-## 🐳 Run with Docker Compose
-
-Update [`docker-compose.yml`] with your Synology NAS address, then run:
-
-```powershell
-docker compose up --build -d
-```
 
 ## 🐳 Run with plain Docker
 
@@ -96,15 +86,22 @@ docker save -o synology-nut-api.tar synology-nut-api:latest
 
 You can then import the tarball in Synology's Container Manager via Image... Action... Import.
 
+## 🧰 Synology setup
+
+1. In DSM, enable the Synology UPS service and the network UPS server. (Control Panel... Power & Hardware... UPS)
+2. Add the Docker host as an allowed network UPS client if Synology asks for permitted IPs.
+3. Note the Synology NAS IP address and the UPS device name.
+
+The default NUT port is `3493`. Many Synology setups expose the UPS as `ups`, but some use another name. If you are unsure, start with `ups`.
+
 ## 👨‍💼 Synology Container Manager
 
-If you want to run the container directly on the Synology NAS:
+This assumes some knowledge of using Docker images on a Synology NAS:
 
-1. Open Container Manager.
-2. Build the image from this folder, or push it to a registry first.
-3. Add the same environment variables shown above.
-4. Publish container port `8000`.
-5. Start the container and test `/health` or `/api/ups` or `/widget/ups`.
+1. Have your UPS setup and properly configured with your Synology NAS.
+2. Grab the latest docker image from this repos releases and add it to Container Manager (or whatever Docker manager you use).
+3. Reference `docker-compose.yml` and the environment variables above, configure appropriately, create a new container.
+4. Start the container and test `/health` or `/api/ups` or `/widget/ups`.
 
 ## 🏠 Add the widget to Homarr
 
@@ -114,6 +111,7 @@ Widget modes (using example IP):
 
 - Full-size widget: `http://192.168.1.10:8000/widget/ups`
 - Compact widget: `http://192.168.1.10:8000/widget/ups?size=compact`
+- Tiny widget: `http://192.168.1.10:8000/widget/ups?size=tiny`
 - Creme theme: `http://192.168.1.10:8000/widget/ups?theme=creme`
 - Blue theme: `http://192.168.1.10:8000/widget/ups?theme=blue`
 - Homarr theme: `http://192.168.1.10:8000/widget/ups?theme=homarr`
