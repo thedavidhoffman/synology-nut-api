@@ -1,6 +1,6 @@
 # Synology NUT API
 
-## This project runs a small Node.js HTTP API in Docker and reads UPS telemetry from Synology's built-in NUT (`upsd`) server. It should work against any NUT server (with proper configuration via the ENV VARS), but I've only tested it against Synology.
+This project runs a small Node.js HTTP API in Docker and reads UPS telemetry from Synology's built-in NUT (`upsd`) server. It should work against any NUT server (with proper configuration via the ENV VARS), but I've only tested it against Synology.
 
 ![Widget theme examples](imgs/demo-four-themes.png)
 
