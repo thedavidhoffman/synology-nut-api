@@ -51,9 +51,9 @@ Example response from `GET /api/ups`:
 
 The default NUT port is `3493`. Many Synology setups expose the UPS as `ups`, but some use another name. If you are unsure, start with `ups`.
 
-## ⚙️ Configuration
+## ⚙️ Docker Configuration
 
-The container uses environment variables:
+The docker container uses the following environment variables:
 
 - `NUT_HOST`: Synology NAS hostname or IP
 - `NUT_PORT`: NUT server port, usually `3493`
@@ -110,7 +110,7 @@ If you want to run the container directly on the Synology NAS:
 
 You can add the HTML widget endpoint to a Homarr board by embedding either the full-size or compact widget.
 
-Widget modes:
+Widget modes (using example IP):
 
 - Full-size widget: `http://192.168.1.10:8000/widget/ups`
 - Compact widget: `http://192.168.1.10:8000/widget/ups?size=compact`
@@ -131,9 +131,8 @@ Widget modes:
 
 Notes:
 
-- If Homarr is running in Docker on the same NAS, `localhost` usually will not work unless both containers share the same network namespace. Use the NAS IP address or the container/service name on a shared Docker network. 🌐
-- If the widget does not load inside Homarr, first open the widget URL directly in your browser to confirm the API container is reachable. 🧪
-- If your Homarr setup blocks iframe-style embeds for some widgets, use the widget type intended for external websites/pages rather than a simple link tile. 🪟
+- 🌐 If Homarr is running in Docker on the same NAS, `localhost` usually will not work unless both containers share the same network namespace. Use the NAS IP address or the container/service name on a shared Docker network.
+- 🧪 If the widget does not load inside Homarr, first open the widget URL directly in your browser to confirm the API container is reachable.
 
 ## 💻 Local development
 

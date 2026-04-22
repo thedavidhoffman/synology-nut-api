@@ -129,16 +129,16 @@ export function renderUpsWidget(refreshIntervalSeconds, widgetSize = "full", wid
       body {
         margin: 0;
         font-family: "Segoe UI", "Trebuchet MS", sans-serif;
-        background: transparent;
+        background: var(--panel);
         color: var(--ink);
         padding: 0;
       }
 
       .widget {
         width: min(920px, 100%);
+        margin: 0 auto;
         background: var(--panel);
         backdrop-filter: blur(18px);
-        border: 1px solid var(--line);
         overflow: hidden;
       }
 
